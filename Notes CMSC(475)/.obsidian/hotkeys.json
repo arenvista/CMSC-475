@@ -1,0 +1,11 @@
+{
+  "window:reset-zoom": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": " "
+    }
+  ]
+}

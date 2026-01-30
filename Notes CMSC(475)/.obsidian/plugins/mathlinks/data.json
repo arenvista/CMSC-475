@@ -1,0 +1,24 @@
+{
+  "templates": [
+    {
+      "replaced": "Templates",
+      "replacement": "$\\LeftrightREPLACE$",
+      "globalMatch": true,
+      "sensitive": true,
+      "word": true
+    },
+    {
+      "replaced": "REPLACE",
+      "replacement": "arrow",
+      "globalMatch": true,
+      "sensitive": true,
+      "word": false
+    }
+  ],
+  "excludedPaths": [
+    "Tests/Excluded.md"
+  ],
+  "blockPrefix": "",
+  "enableFileNameBlockLinks": true,
+  "enableAPI": true
+}

@@ -1,0 +1,41 @@
+/* --- THEOREM (Blue) --- */
+.callout[data-callout="thm"] {
+    --callout-color: 0, 122, 255; /* Blue */
+    --callout-icon: "lucide-scroll-text";
+}
+
+/* --- LEMMA (Teal/Cyan) --- */
+.callout[data-callout="lem"] {
+    --callout-color: 48, 176, 199; /* Cyan */
+    --callout-icon: "lucide-puzzle";
+}
+
+/* --- COROLLARY (Purple) --- */
+.callout[data-callout="cor"] {
+    --callout-color: 175, 82, 222; /* Purple */
+    --callout-icon: "lucide-arrow-down-right";
+}
+
+/* --- DEFINITION (Green) --- */
+.callout[data-callout="def"] {
+    --callout-color: 52, 199, 89; /* Green */
+    --callout-icon: "lucide-book-open";
+}
+
+/* --- PROOF (Gray/Subtle) --- */
+/* Proofs are often preferred to be subtle */
+.callout[data-callout="pf"] {
+    --callout-color: 142, 142, 147; /* Gray */
+    --callout-icon: "lucide-pen-tool";
+    font-style: italic; /* Makes the body text italic like standard LaTeX proofs */
+}
+
+/* Optional: Add a QED symbol (square) at the end of proofs */
+/* Note: This is purely visual and might not align perfectly with the last text character */
+.callout[data-callout="pf"]::after {
+    content: "∎";
+    display: block;
+    text-align: right;
+    margin-top: -1em; /* Pulls it up slightly */
+    color: rgba(var(--callout-color), 1);
+}
