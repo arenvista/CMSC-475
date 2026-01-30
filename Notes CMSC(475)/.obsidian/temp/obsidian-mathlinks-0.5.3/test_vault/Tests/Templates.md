@@ -1,5 +1,0 @@
----
-mathLink: auto
----
-
-[[Templates]]

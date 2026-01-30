@@ -1,1 +1,0 @@
-[Obsidian](http://obsidian.md)
