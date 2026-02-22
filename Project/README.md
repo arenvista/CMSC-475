@@ -1,0 +1,49 @@
+# Project Ideas
+- [ ] Cell Image Detection
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Racing Game (Optimize for Best Time on a Track)
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Listening Tastes  
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Compiler Optimization 
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Gaussian Splatting
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Image Detection (Broad)
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Load Balancing
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Satellite Image Analysis
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
