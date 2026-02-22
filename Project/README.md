@@ -12,12 +12,6 @@
     - Interest (Hail): [ ]
     - Interest (John): [ ]
     - Notes: 
-- [ ] Listening Tastes  
-    - Difficulty [ ]
-    - Interest (Aren): [ ]
-    - Interest (Hail): [ ]
-    - Interest (John): [ ]
-    - Notes: 
 - [ ] Compiler Optimization 
     - Difficulty [ ]
     - Interest (Aren): [ ]
@@ -49,7 +43,7 @@
     - Interest (John): [ ]
     - Notes: 
 - [ ] Audio Classification / Song Recomendation
-    - Difficulty [ ]
+    - Difficulty [55]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
     - Interest (John): [ ]
