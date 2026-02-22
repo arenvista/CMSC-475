@@ -4,43 +4,43 @@
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Racing Game (Optimize for Best Time on a Track)
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Compiler Optimization 
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Gaussian Splatting
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Image Detection (Broad)
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Load Balancing
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Satellite Image Analysis
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
 - [ ] Audio Classification / Song Recomendation
     - Difficulty [ ]
@@ -52,5 +52,5 @@
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
-    - Interest (John): [ ]
+    - Interest (John): [0]
     - Notes: 
