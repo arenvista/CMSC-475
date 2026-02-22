@@ -43,7 +43,13 @@
     - Interest (John): [ ]
     - Notes: 
 - [ ] Audio Classification / Song Recomendation
-    - Difficulty [55]
+    - Difficulty [ ]
+    - Interest (Aren): [34]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Lol  
+    - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
     - Interest (John): [ ]
