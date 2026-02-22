@@ -1,3 +1,4 @@
+1, 2, 3, 5, 8, 13, 21, 34, 55
 # Project Ideas
 - [ ] Cell Image Detection
     - Difficulty [ ]
@@ -42,6 +43,12 @@
     - Interest (John): [ ]
     - Notes: 
 - [ ] Satellite Image Analysis
+    - Difficulty [ ]
+    - Interest (Aren): [ ]
+    - Interest (Hail): [ ]
+    - Interest (John): [ ]
+    - Notes: 
+- [ ] Audio Classification / Song Recomendation
     - Difficulty [ ]
     - Interest (Aren): [ ]
     - Interest (Hail): [ ]
