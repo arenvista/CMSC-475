@@ -1,0 +1,122 @@
+\documentclass[10pt, twocolumn]{article}
+
+% --- Essential Packages ---
+\usepackage[utf8]{inputenc} % Standard character encoding
+\usepackage{geometry}       % For setting page margins
+\geometry{letterpaper, margin=1in} 
+\usepackage{graphicx}       % For inserting images
+\usepackage{amsmath}        % For advanced math typesetting
+\usepackage{lipsum}         % For generating filler text
+\usepackage{hyperref}       % For clickable links and URLs
+\usepackage{xcolor}         % For coloring links
+
+% Configure Hyperref for prettier, clickable links
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+% --- Title Information ---
+\title{Audio Classification and Music Recommendation}
+\author{
+  John Bui, Aren Vista, Haliey Davio \\
+  \textit{University of Maryland, Baltimore County}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% --- Abstract ---
+\begin{abstract}
+	Many modern music platforms provide users with song recommendations based on one-dimensional factors. They may suggest more music from the same or similar artists, or new songs based on trends set by similar users. Our approach will take a closer look at the song data itself, creating more accurate recommendations based on data derived from a song's spectrogram.
+\end{abstract}
+
+% --- Main Content ---
+\section{Introduction}
+
+In the current landscape of digital streaming, discovering new music relies heavily on algorithms driven by metadata—genre tags, artist popularity, and collaborative filtering (what other users with similar libraries listen to). While effective, these traditional systems often overlook the most crucial element of music: the actual sound. This project proposes a novel, audio-first recommendation engine that bypasses metadata biases to analyze the raw acoustic properties of tracks, delivering a highly personalized music discovery experience.
+
+\section{Value Proposition}
+By shifting the focus from who made the song or how it is categorized to what it actually sounds like, this project bridges the gap between deep acoustic characteristics and user preferences. This approach not only yields highly accurate recommendations but also naturally surfaces independent or lesser-known artists who might otherwise be buried by traditional, popularity-driven algorithms.
+
+\pagebreak
+\section{Methodology}
+To achieve this, our system will focus on three core objectives:
+
+\begin{enumerate}
+	\item \textit{Classifying Audio via Spectrogram Analysis}: We will convert raw audio waveforms into mel-spectrograms—visual representations of a track's frequencies and amplitudes over time. By treating audio as an image, we can utilize deep learning models (such as Convolutional Neural Networks) to extract complex acoustic features like timbre, tempo, and harmonic structure.
+
+	\item \textit{Building User Profiles}: Rather than relying on a user's clicked genres or liked artists, the system will compile and analyze the spectrogram data directly from a user’s listening history. This aggregate data will be used to construct a unique, personalized "profile" that accurately maps their auditory preferences.
+
+	\item \textit{Generating Content-Based Recommendations}: Using this profile, the system will compare the user's acoustic baseline against a database of unlistened tracks. By mathematically matching the acoustic signatures, the engine will suggest new songs that authentically resonate with the user's established tastes based purely on similarity.
+\end{enumerate}
+
+\section{Data Collection}
+Labeled audio tracks will be sourced from FMA: A Dataset For Music Analysis \cite{defferrard2017}. The audio data is MP3-encoded. Each song will be converted from .mp3 format to a spectrogram to be processed as visual data. Other audio data provided by the dataset (volume, song length, etc.) may also play a role in data processing.
+
+\section{Timeline}
+The following table outlines the projected schedule for the completion of this project over the course of the semester.
+
+\begin{table}[htbp]
+	\centering
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabular}{|p{2cm}|p{5cm}|}
+		\hline
+		\textbf{Timeframe} & \textbf{Project Milestone}                                                                           \\
+		\hline
+		Weeks 1--2         & Dataset acquisition (e.g., FMA dataset) and exploratory data analysis.                               \\
+		\hline
+		Weeks 3--4         & Data preprocessing: parsing audio waveforms and generating mel-spectrograms.                         \\
+		\hline
+		Weeks 5--7         & Develop, train, and validate the Convolutional Neural Network (CNN) for acoustic feature extraction. \\
+		\hline
+		Weeks 8--9         & Construct user profiling logic and build the content-based recommendation matching algorithm.        \\
+		\hline
+		Weeks 10--11       & System testing, similarity score evaluation, and hyperparameter fine-tuning.                         \\
+		\hline
+		Week 12            & Finalizing results, generating data visualizations, and writing the final academic report.           \\
+		\hline
+	\end{tabular}
+	\caption{Project milestones and estimated completion schedule.}
+	\label{tab:timeline}
+\end{table}
+
+\section{Contributions}
+This project adopts a highly collaborative framework wherein responsibilities are shared equally across the research team. All members will provide concurrent contributions to the model's architectural training, performance optimization, and the authorship of the resulting manuscript.
+
+\section{Outcomes}
+
+\subsection*{Expected Outcome}
+Ideally, this project will result in a fully functional, audio-first recommendation engine. We aim to successfully convert our target tracks from the FMA dataset into mel-spectrograms, train a Convolutional Neural Network (CNN) to achieve an acoustic feature classification accuracy of at least 80\%, and output mathematically sound track recommendations that bypass traditional metadata entirely.
+
+\subsection*{Worst-Case Outcome}
+In the event of unforeseen challenges—such as computational bottlenecks, persistent overfitting, or poor model convergence—our minimum viable product will still demonstrate the foundational data pipeline. This includes successfully parsing the raw .mp3 files into mel-spectrograms and establishing a baseline CNN architecture capable of processing the visual data, even if the final recommendation algorithm yields suboptimal similarity matching.
+
+
+% --- References ---
+\begin{thebibliography}{9}
+
+	\bibitem{adiyansjah2019}
+	Adiyansjah, A., Wilie, B., \& Suhartono, D. (2019). Music recommender system based on genre using convolutional recurrent neural networks. \textit{Procedia Computer Science}, 157, 99-109. \url{https://doi.org/10.1016/j.procs.2019.08.146}
+
+	\bibitem{choi2017}
+	Choi, K., Fazekas, G., Sandler, M., \& Cho, K. (2017). Convolutional recurrent neural networks for music classification. \textit{2017 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 2392-2396. \url{https://doi.org/10.1109/ICASSP.2017.7952585}
+
+	\bibitem{kostrzewa2024}
+	Kostrzewa, D., Chrobak, J., \& Brzeski, R. (2024). Attributes relevance in content-based music recommendation system. \textit{Applied Sciences}, 14(2), 855. \url{https://doi.org/10.3390/app14020855}
+
+	\bibitem{vandenoord2013}
+	van den Oord, A., Dieleman, S., \& Schrauwen, B. (2013). Deep content-based music recommendation. \textit{Advances in Neural Information Processing Systems}, 26, 2643-2651.
+
+	\bibitem{spotifyalgo}
+	Spotify Algorithm. XDA Developers. \url{https://www.xda-developers.com/spotify-algorithm-recommends-music/}
+
+	\bibitem{defferrard2017}
+	Michaël Defferrard, Kirell Benzi, Pierre Vandergheynst, Xavier Bresson. (2017). FMA: A Dataset For Music Analysis. \textit{International Society for Music Information Retrieval Conference (ISMIR)}. \url{https://github.com/mdeff/fma}
+
+\end{thebibliography}
+
+\end{document}
