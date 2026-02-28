@@ -1,0 +1,312 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multicol} % Required package
+\usepackage{lipsum}   % Package for dummy text
+\usepackage{amsmath,amsthm,amscd,amssymb,mathrsfs,tikz}
+% \usepackage{verbatim}
+\usepackage{latexsym,epsf,epsfig}
+\usepackage{sectsty}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{booktabs, multirow} % for borders and merged ranges
+\usepackage{soul}% for underlines
+\usepackage{xcolor,colortbl} % for cell colors
+\usepackage{changepage,threeparttable} % for wide tables
+\usepackage[left=1.2in, right=1.2in, top=1in, bottom=1in]{geometry} %The above set the parameters adjust the margins. There are many ways to do this, and frankly, what is above is not the best. However, it will work the time being.
+\usepackage{sectsty}
+\usepackage{ wasysym }
+
+\usepackage{xcolor}
+\usepackage{mdframed} % Required for the bordered box
+
+% Define the custom command
+\newcommand{\question}[1]{
+    \begin{mdframed}[
+        linecolor=gray,       % Color of the border
+        linewidth=0.5pt,      % Thickness of the border
+        innertopmargin=10pt,  % Internal padding (top)
+        innerbottommargin=10pt % Internal padding (bottom)
+    ]
+    % \centering \itshape \color{gray} #1
+    \centering \itshape #1
+    \end{mdframed}
+}
+
+\newcommand{\subp}[1]{
+    \begin{mdframed}[
+        linewidth=0.5pt,      % Thickness of the border
+        innertopmargin=10pt,  % Internal padding (top)
+        innerbottommargin=10pt % Internal padding (bottom)
+    ]
+    \centering \itshape #1
+    \end{mdframed}
+}
+\usepackage{amsthm}     % Standard math theorem package
+\usepackage{enumitem}   % For custom lists (Cases)
+\usepackage[svgnames]{xcolor} % For color options
+
+% 1. Corollary Setup (Numbered)
+\newtheorem{cor}{Corollary}
+
+% 2. Case Setup (Custom List)
+\newlist{caseslist}{enumerate}{2} % Supports nested cases up to 2 levels
+\setlist[caseslist]{
+    label=\textbf{Case \arabic*:}, 
+    leftmargin=*, 
+    itemsep=0.5em, 
+    topsep=0.5em
+}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\sU}{\mathscr U}
+% Theorem
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+% Margins
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\title{UMBC CMSC 475/675 Neural Networks  \\ Homework 1}
+\author{ Aren Vista }
+\date{\today}
+\begin{document}
+\section*{1 Binary Logistic Regression   }
+\question{We are given a dataset $\mathcal{D}=\{(x^{(i)},y^{(i)})\}_{i=1}^{N}$ with M-dimensional inputs $x\in\mathbb{R}^{M}$ and binary outputs $y\in\{0,1\}$.  We want to build a model as a linear combination of $x^{(i)}$ and weights followed by a nonlinear activation function $\alpha(.)$, s.t.  the model predicts conditional probability $P(y^{(i)}|x^{(i)},\theta)$.}
+\[
+	\begin{gathered}
+		\text{Consider the form below: } \\
+		\mathcal{D} :=
+		\begin{bmatrix}
+			x_{1,1} & x_{1,2} & ...    & x_{1,M} \\
+			x_{2,1} & \ddots                     \\
+			\vdots  &         & \ddots           \\
+			x_{N,1} &         &        & x_{N,M} \\
+		\end{bmatrix}
+		~\hat{Y} :=
+		\begin{bmatrix}
+			\hat{y}_1 \\
+			\hat{y}_2 \\
+			\vdots    \\
+			\hat{y}_N \\
+		\end{bmatrix}
+	\end{gathered}
+\]
+\subsection*{1.1 What are the dimensions of weight vector 0?}
+
+\[
+	\begin{gathered}
+		\text{To obtain the form $\mathcal{D}\vec{\theta} = \hat{Y}$. Consider $dims(\mathcal{D}), dims(\hat{Y}) \implies (N \times M)$, $(N \times 1)$ respectively.} \\
+		\therefore ~dims(\vec{\theta}) := (M \times 1) \\ \\
+		\text{Consider the form below: } \\
+		\begin{bmatrix}
+			x_{1,1} & x_{1,2} & ...    & x_{1,M} \\
+			x_{2,1} & \ddots                     \\
+			\vdots  &         & \ddots           \\
+			x_{N,1} &         &        & x_{N,M} \\
+		\end{bmatrix}
+		\begin{bmatrix}
+			\theta_1 \\
+			\theta_2 \\
+			\vdots   \\
+			\theta_M \\
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+			\hat{y}_1 \\
+			\hat{y}_2 \\
+			\vdots    \\
+			\hat{y}_N \\
+		\end{bmatrix}
+	\end{gathered}
+\]
+\subsection*{1.2. Choice of $\alpha(.)$ }
+What activation is appropriate for this task? Justify your choice. Write the equation for  $\alpha(x)$.
+\[
+	\begin{gathered}
+		\forall ~y \in \hat{Y}, y \in [0,1] \implies \forall ~x \in \mathbb{R}, ~\alpha(x) \in [0,1] \\
+		\text{Consider: } \alpha'(x) := \frac{1}{1+e^{-x}} \implies \forall ~x \in \mathbb{R}, ~a'(x) \in (0,1) \approx [0,1]
+	\end{gathered}
+\]
+
+\subsection*{1.3. Conditional Probability Equation }
+Write a single equation to express the conditional probability $P(y^{(i)}|x^{(i)},\theta)$ in terms of $\alpha(.)$, $\theta$.
+\[
+	\begin{gathered}
+		\text{Let } P(y^{(i)}|x^{(i)},\theta) := P(y_{i}|x_{i},\theta) \equiv \small{\textit{\text{"The probability of $y_i$ given $x_i, ~\theta$."}}} \\\\
+		\text{Recall: }
+		\left \{
+		\begin{array}{cc}
+			a_1 = w_1 \cdot x + b_1 \\
+			a_2 = w_2 f_1(a_1)      \\
+			a_3 = w_3 f_2(a_2)      \\
+			y = f_3(a_3)
+		\end{array}
+		\right . \\\\
+		\tiny{(\text{Note: } \theta := w_n)} \implies y_i = \alpha(\theta^T x_i) = \alpha(\theta \cdot x_i) \\
+		\therefore ~P(y_{i}|x_{i},\theta) = \alpha(\theta^T x_i)
+	\end{gathered}
+\]
+
+\subsection*{1.4. Likelihood Expression }
+We assume each observation of $y^{(i)}$ in the data is independent and identically distributed.  This means we can write down the likelihood of the data as a product of negative conditional probabilities.  Express and simplify this likelihood $J(\theta)$
+% TODO: finish
+\[
+	\begin{gathered}
+		\text{Recall (Sum Sq. Errors): } J(\theta) = \frac{1}{N}\sum_{i=1}^{N} (y_i-\theta^Tx_i)^2 \\
+		\theta^Tx_i \text{ is a dot product yielding the } \hat{y_i}
+	\end{gathered}
+\]
+
+\subsection*{1.5. Stochastic Gradient Descent }
+In stochastic gradient descent, we use only a single $x^{(i)}$ to compute the likelihood and then find the gradient as the partial derivative of $J(\theta)$ w.r.t.  each $j^{th}$ parameter $\theta_{j}$ Derive the expression for this partial derivative $\frac{\partial J^{(i)}(\theta)}{\partial\theta_{j}}$
+% TODO: finish
+\[
+	\begin{gathered}
+		\text{Apply Dimensional Analysis} \\
+		\frac {\partial J_i} {\partial\theta_{j}} =
+		\frac {\partial J_i} {\partial \hat{y}_i} \cdot \frac
+        {\partial \hat{y}_i} {\partial (\theta^Tx_i)} \cdot
+		\frac {\partial (\theta^Tx_i)} {\partial \theta_j}
+	\end{gathered}
+\]
+
+% \[
+% 	\begin{gathered}
+% 		\nabla J(\theta) := \begin{bmatrix}
+% 			\frac{\mathscr{d}J(\theta)}{d \theta_1} \\[1em]
+% 			\frac{\mathscr{d}J(\theta)}{d \theta_1} \\[1em]
+% 			\vdots                                  \\[1em]
+% 			\frac{\mathscr{d}J(\theta)}{d \theta_M} \\[1em]
+% 		\end{bmatrix} \\
+% 		\text{Recall (Sum Sq. Errors): } J(\theta) = \frac{1}{N}\sum_{i=1}^{N} (y_i-\theta^Tx_i)^2 \\
+% 		\theta^Tx_i \text{ is a dot product yielding the } \hat{y_i} \\
+% 	\end{gathered}
+% \]
+
+\subsection*{1.6. Gradient Interpretation }
+You may have noticed that the gradient computed above has a very simple form.  \\
+(A) Express the gradient equation in simple English.    \\
+(B) Assuming that one has performed a forward pass to obtain a prediction, how many computations (how many multiplications and how many additions/subtractions) would one need to do to obtain the gradient for each weight?
+
+\section*{2 Logistic Regression Computations by Hand   }
+
+A logistic regression model is given by the equation $\hat{y}=\sigma(\theta^{T}x)$ where is the sigmoid function.  Consider a logistic regression task with inputs $x\in\mathbb{R}^{3}$ and outputs $y\in\{0,1\}$.  The dataset has three datapoints: \{, ([1, 1, -1], 1), ([1, 2, 1], 0)\}.
+\begin{itemize}
+	\item The initial weight vector is $\hat{\theta}=[-2,2,1]$.
+\end{itemize}
+
+\subsection*{2.1. Training Objective $J(\theta)$ }
+Assuming we're using mean-squared error as the training objective $J(\theta)$ write the equation for $J(\theta)$.  Then compute the value of $J(\theta)$ with the initial weight vector .
+
+\subsection*{2.2. Gradient Computation }
+Calculate the partial derivatives for the first training example:  \\
+(1) ( ) 001  \\
+(1) ( ) 0021  \\
+$\frac{\partial J^{(1)}(\theta)}{\partial\theta_{3}}$  \\
+Calculate the partial derivatives for the second training example: $\frac{\partial J^{(2)}(\theta)}{\partial\theta_{1}},\frac{\partial J^{(2)}(\theta)}{\partial\theta_{2}},\frac{\partial J^{(2)}(\theta)}{\partial\theta_{3}}$
+
+\subsection*{2.3. SGD update }
+We are using stochastic gradient descent (SGD) with a learning rate of 1.0.  Recall that SGD updates the weights by using one datapoint at a time to compute the gradients.  If we update the weights using the second example, what is the updated weight vector $\theta^{1}$? Calculate $J(\theta^{1})$
+
+\subsection*{2.4. Inference }
+Given a new test example $x=[1,3,4]$, what output will the model produce?
+
+\section*{3 Programming Logistic Regression   }
+Now write your own code for logistic regression. In the report, you need to include your code blocks for each task below and results and plots wherever appropriate.  You can refer to the linear regression example notebook we used in class as a starting point (link is available in the slides).  We will use the dataset from Scikit Learn \url{https://scikit-learn.org/stable/datasets/toy_dataset.html#breast-cancer-wisconsin-diagnostic-dataset}.  For this programming assignment, our values will be the "mean radius" feature;  output y will be 0 for malignant and 1 for benign.  We will use the binary cross entropy loss function to train the model.
+
+\subsection*{3.1. Divide the dataset }
+Write a python function to randomly split the dataset into 80\% samples for training and 20\% for testing.  You will train the model on the training subset and once the model is trained, evaluate it on the testing subset.
+
+\begin{lstlisting}[language=Python]
+def divide_dataset (data_x, data_y, train_percentage): 
+    # your code for dividing the dataset
+    return train_data_x, train_data_y, test_data_x, test_data_y 
+\end{lstlisting}
+
+\subsection*{3.2. Sigmoid Function }
+Write a Python code for the sigmoid function.  The input should be a Numpy array representing a batch of data.  Each element in the array is an individual input to the sigmoid function.  The output of sigmoid function should return a Numpy array of the same shape as the input.
+
+\subsection*{3.3. Calculating Accuracy }
+For calculating accuracy, we will threshold the output, i.e., if $\hat{y}>0.5$, classify as 1;  otherwise 0. Write a function to calculate accuracy and print accuracy after every 1000th training iteration.
+
+\begin{lstlisting}[language=Python]
+def accuracy (y, y_pred): 
+    # your code 
+    return acc 
+\end{lstlisting}
+
+\subsection*{3.4. Weight Initialization }
+Using the inbuilt numpy.random, write a Python function to initialize the weights and biases.
+
+\subsection*{3.5. Gradient Descent }
+Given the specified loss function, write the equation for the gradient w.r.t. weight w and bias b.  Then write a Python function to perform one step of gradient descent with learning rate a.
+
+\begin{lstlisting}[language=Python]
+def gradient_descent(w, b, alpha, data_x, data_y): 
+    # do forward pass 
+    # compute gradients 
+    # update w and b 
+    return new_w, new_b 
+\end{lstlisting}
+
+\subsection*{3.6. Train the Model }
+Write a Python function for training the model using the template below:
+
+\begin{lstlisting}[language=Python]
+def train (x, y, alpha, num_iterations): 
+    # initialize weights 
+    #training loop 
+    # record training accuracy after every 1000 iterations
+    # record loss after every 1000 iterations 
+    # plot acc vs iterations and loss vs iterations 
+    return final_m, final_b 
+\end{lstlisting}
+
+Train the model with $\alpha=0.1$ and 10000 iterations. The function should print training accuracy after every 1000 iterations.  The function should return a plot of loss vs iterations and accuracy vs iterations. Show this plot in your report.
+
+\subsection*{3.7. Write a test function to evaluate trained model }
+After training is done, you need to evaluate your model.  Use the trained model to predict labels for the test data and calculate accuracy using the accuracy function.  Print this accuracy.
+
+\subsection*{3.8. Hyperparameter Analysis}
+Try 4 different learning rates a and 4 different number of iterations N. Report the test accuracy of the model for all combinations in a table like the one below:
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		                 & $N_{1}=10000$ & $N_{2}=20000$ & $N_{3}=$ & $N_{4}=$ \\ \hline
+		$\alpha_{1}=0.1$ &               &               &          &          \\ \hline
+		$\alpha_{2}=$    &               &               &          &          \\ \hline
+		$\alpha_{3}=$    &               &               &          &          \\ \hline
+		$\alpha_{4}=$    &               &               &          &          \\ \hline
+	\end{tabular}
+\end{table}
+
+With the best learning rate that you tried, does increasing the number of iterations from 10000 to 20000 help?  Explain how you chose the values for learning rate and number of iterations.
+
+\subsection*{3.9. (Extra Credit) Logistic Regression using Multiple Features }
+The Scikit-Learn dataset we used above has several features other than "mean radius".  Train a model that uses more than one features in the input per example (mean radius and some other features).  139] To do so, you may have to rewrite the sigmoid function and gradient rules.  Repeat the process and report your results. Did using more features help improve the accuracy on the test set?
+
+\section*{4 Image Convolution by Hand   }
+
+Show the method and answer for convolving image $x(m,n)$ with filter $h(m,n)$. Assume zero-padding outside of x.  The equation and visual procedure for 2D convolution is in the slides.
+$$x(m,n)=\left[\begin{matrix}1&10\\ 2&20\\ 3&30\end{matrix}\right] \quad h(m,n)=\left[\begin{matrix}1&0&1\\ -1&0&-1\end{matrix}\right]$$
+
+\section*{5 Watch YouTube Videos as Homework :)   }
+
+Watch the 2015 TED Talk delivered by Fei-Fei Li (Professor at Stanford and lead researcher behind the ImageNet dataset), titled "How we teach computers to understand pictures".  Link: \url{https://youtu.be/40riCqvRoMs?feature=shared}.  \\
+Submit your responses to the following:
+\begin{enumerate}
+	\item Summarize the video in a couple of paragraphs. You can write about the big-picture topic and specific projects (tasks, methods, results, etc.)
+	\item What was your favorite part of the talk / discussion?
+	\item Cite and summarize (in one paragraph) one of the speaker's published papers discussed in /  relevant to the video.
+\end{enumerate}
+
+\end{document}
