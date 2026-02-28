@@ -11,16 +11,29 @@ import math
 from typing import Any, List, Tuple
 import matplotlib.pyplot as plt
 import argparse
+from pandas import DataFrame, Series
+
 
 LOG_MODE: bool = False
 VERBOSE_MODE: bool = False
 ALPHA: float = 0.0
+FEATURES: int = 1
+
 
 def load_data() -> Tuple[NDArray, NDArray]:
-    data: Any = load_breast_cancer()
-    X: NDArray = data.data[:, 0].reshape(-1, 1)
-    y: NDArray = data.target
-    return X, y
+    dataset_bunch: Any = load_breast_cancer(as_frame=True)
+    data_df: DataFrame = dataset_bunch.frame
+    global FEATURES
+    FEATURES = data_df.shape[1]
+    X: DataFrame = data_df.iloc[:, :-1]
+    X = (X - X.mean(axis=0)) / X.std(axis=0)
+    y: DataFrame = data_df.iloc[:, -1]
+    if VERBOSE_MODE:
+        print(
+            f"""Loading in Breast Cancer Data ----------------------\n\tX Shape -> {X.shape})\n\tY Shape -> {y.shape}")\n=== X Head ===\n{X.head()}\n=== Y Head ===\n{y.head()}\n ----------------------------------------------------"""
+        )
+    return X.to_numpy(), y.to_numpy()
+
 
 def divide_dataset(
     data_x: NDArray, data_y: NDArray, train_percentage: float
@@ -30,41 +43,43 @@ def divide_dataset(
     train_data_y: NDArray = data_y[0:n_entries]
     test_data_x: NDArray = data_x[n_entries:]
     test_data_y: NDArray = data_y[n_entries:]
+    if VERBOSE_MODE:
+        print(
+            f"train_data_x.shape: {train_data_x.shape}, "
+            f"train_data_y.shape: {train_data_y.shape}, "
+            f"test_data_x.shape: {test_data_x.shape}, "
+            f"test_data_y.shape: {test_data_y.shape}"
+        )
     return train_data_x, train_data_y, test_data_x, test_data_y
 
 
-def sigmoid_vec(X: np.ndarray) -> None:
-    sigmoid_func = lambda x: 1 / (1 + math.exp(-x))
-    for x_vec in X:
-        for x_ind in range(len(x_vec)):
-            X[x_ind] = sigmoid_func(X[x_ind])
+def sigmoid(X: np.ndarray) -> np.ndarray:
+    return 1 / (1 + np.exp(-X))
 
 
 def calc_acc(y: np.ndarray, y_hat: np.ndarray) -> float:
-    round_val = lambda val: 1 if val > 0.5 else 0
+    y_hat_round = y_hat > 0.5
     num_entries = len(y)
     corr = 0
     for i in range(len(y)):
-        y_hat_round = round_val(y_hat[i])
-        if y[i] == y_hat_round:
+        if y[i] == y_hat_round[i]:
             corr += 1
     return corr / num_entries
 
 
-def forward_pass(X: np.ndarray, w: np.ndarray, b: float):
-    # Use dot product: (Samples, 30) @ (30,) -> (Samples,)
-    z = np.dot(X, w) + b
-    y_hat = 1 / (1 + np.exp(-z))  # Sigmoid
+def forward_pass(X: NDArray, w: NDArray, b: float) -> np.ndarray:
+    z: NDArray = np.dot(X, w) + b
+    y_hat = sigmoid(z)
     return y_hat
 
 
 def gradient_descent(
-    w: np.ndarray,
+    w: NDArray,
     b: float,
     alpha: float,
-    X: np.ndarray,
-    y: np.ndarray,
-    y_hat: np.ndarray,
+    X: NDArray,
+    y: NDArray,
+    y_hat: NDArray,
 ):
     num_entries = len(y)
     err = y_hat - y
@@ -76,6 +91,7 @@ def gradient_descent(
     new_b = b - (alpha * grad_b)
     return new_w, new_b
 
+
 def loss(y: np.ndarray, y_hat: np.ndarray):
     num_ind: int = len(y)
     sq_err = lambda ind: (y_hat[ind] - y[ind]) ** 2
@@ -84,6 +100,7 @@ def loss(y: np.ndarray, y_hat: np.ndarray):
         sum += sq_err(ind)
     mse = float((1 / (2 * num_ind)) * sum)
     return mse
+
 
 def plot_val(
     param: List[float],
@@ -113,10 +130,14 @@ def plot_val(
     plt.close()  # Good practice to close the figure and free memory
     return
 
+
 def print_evals(epoch, acc, loss):
     if VERBOSE_MODE:
-        output = f""" Epoch [{epoch}] -----------\n \t Accuracy => {acc}\n \t Loss     => {loss} """
+        output = (
+            f""" Epoch [{epoch}]:\t[Accuracy => {acc: .5f}]\t[Loss => {loss: .5f}]"""
+        )
         print(output)
+
 
 def gen_csv_filename():
     now = datetime.now()
@@ -134,6 +155,7 @@ def write_logs(acc_vals, interval, alpha):
     log_filename = gen_csv_filename()
     with open(log_filename, "w") as file:
         file.write(out_str)
+
 
 def write_pretty_table(filename: str):
     file_list = glob.glob("log/*.csv")
@@ -160,8 +182,10 @@ def pretty_table(data, headers):
         f.write("\n".join(out_strs))
 
 
-def train(x: np.ndarray, y: np.ndarray, alpha: float, num_itters: int):
+def train(x: NDArray, y: NDArray, alpha: float, num_itters: int):
     # Initialize weights as a vector of shape (num_features,)
+    if VERBOSE_MODE:
+        print("\nTraining started -------------")
     num_features = x.shape[1]
     weight = np.random.uniform(0.0, 1.0, size=num_features)
     bias = 0.0
@@ -188,10 +212,12 @@ def train(x: np.ndarray, y: np.ndarray, alpha: float, num_itters: int):
     if LOG_MODE:
         write_logs(accu_vals, interval, alpha)
         write_pretty_table("table.md")
+    if VERBOSE_MODE:
+        print("\nTraining completed ------------")
     return weight, bias
 
 
-def test(test_x: np.ndarray, test_y: np.ndarray, weight: NDArray, bias: float):
+def test(test_x: NDArray, test_y: NDArray, weight: NDArray, bias: float):
     y_hat = forward_pass(test_x, weight, bias)
     final_acc = calc_acc(test_y, y_hat)
     print(f"Training Complete. Fin Accuracy: {final_acc:.2%}")
@@ -218,9 +244,8 @@ def main():
     args = ini_parse()
     alpha: float = args.alpha
     X, y = load_data()
-    num_itters = 10000
+    num_itters = 4000
     train_x, train_y, test_x, test_y = divide_dataset(X, y, 0.8)
-    print("Training started...")
     final_w, final_b = train(train_x, train_y, alpha, num_itters)
     test(test_x, test_y, final_w, final_b)
 

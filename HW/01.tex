@@ -22,6 +22,27 @@
 
 \usepackage{xcolor}
 \usepackage{mdframed} % Required for the bordered box
+% Define custom colors
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configure the listings package
+\lstset{
+    language=Python,
+    backgroundcolor=\color{backcolour},   % Light gray background
+    commentstyle=\color{codegreen},       % Green comments
+    keywordstyle=\color{magenta},         % Magenta keywords (def, return, etc.)
+    stringstyle=\color{codepurple},       % Purple strings
+    numberstyle=\tiny\color{codegray},    % Small gray line numbers
+    basicstyle=\ttfamily\small,           % Monospace font
+    breaklines=true,                      % Auto-wrap long lines
+    keepspaces=true,                      % Preserve spaces/indentation
+    numbers=left,                         % Line numbers on the left
+    numbersep=5pt,                        % Distance between numbers and code
+    showstringspaces=false                % Don't show weird underscores in strings
+}
 
 % Define the custom command
 \newcommand{\question}[1]{
@@ -45,6 +66,8 @@
     \centering \itshape #1
     \end{mdframed}
 }
+
+
 \usepackage{amsthm}     % Standard math theorem package
 \usepackage{enumitem}   % For custom lists (Cases)
 \usepackage[svgnames]{xcolor} % For color options
@@ -172,7 +195,7 @@ In stochastic gradient descent, we use only a single $x^{(i)}$ to compute the li
 		\text{Apply Dimensional Analysis} \\
 		\frac {\partial J_i} {\partial\theta_{j}} =
 		\frac {\partial J_i} {\partial \hat{y}_i} \cdot \frac
-        {\partial \hat{y}_i} {\partial (\theta^Tx_i)} \cdot
+		{\partial \hat{y}_i} {\partial (\theta^Tx_i)} \cdot
 		\frac {\partial (\theta^Tx_i)} {\partial \theta_j}
 	\end{gathered}
 \]
@@ -223,56 +246,118 @@ Now write your own code for logistic regression. In the report, you need to incl
 
 \subsection*{3.1. Divide the dataset }
 Write a python function to randomly split the dataset into 80\% samples for training and 20\% for testing.  You will train the model on the training subset and once the model is trained, evaluate it on the testing subset.
-
 \begin{lstlisting}[language=Python]
-def divide_dataset (data_x, data_y, train_percentage): 
-    # your code for dividing the dataset
-    return train_data_x, train_data_y, test_data_x, test_data_y 
+def load_data() -> Tuple[NDArray, NDArray]:
+    data: Any = load_breast_cancer()
+    X: NDArray = data.data[:, 0].reshape(-1, 1)
+    y: NDArray = data.target
+    return X, y
+    
+def divide_dataset (data_x: NDArray,
+                    data_y: NDArray, 
+                    train_percentage: float)
+    n_entries: int = int(len(data_y)*train_percentage)
+    train_data_x: NDArray = data_x[0:n_entries]  
+    train_data_y: NDArray = data_y[0:n_entries]  
+    test_data_x:  NDArray = data_x[n_entries:]   
+    test_data_y:  NDArray = data_y[n_entries:]  
+    return train_data_x , train_data_y , test_data_x , test_data_y
 \end{lstlisting}
 
 \subsection*{3.2. Sigmoid Function }
 Write a Python code for the sigmoid function.  The input should be a Numpy array representing a batch of data.  Each element in the array is an individual input to the sigmoid function.  The output of sigmoid function should return a Numpy array of the same shape as the input.
+\begin{lstlisting}[language=Python]
+def sigmoid_vec(X: np.ndarray) -> None:
+    sigmoid_func = lambda x: 1 / (1 + math.exp(-x))
+    for x_vec in X:
+        for x_ind in range(len(x_vec)):
+            X[x_ind] = sigmoid_func(X[x_ind])
+\end{lstlisting}
 
 \subsection*{3.3. Calculating Accuracy }
 For calculating accuracy, we will threshold the output, i.e., if $\hat{y}>0.5$, classify as 1;  otherwise 0. Write a function to calculate accuracy and print accuracy after every 1000th training iteration.
-
 \begin{lstlisting}[language=Python]
-def accuracy (y, y_pred): 
-    # your code 
-    return acc 
+def calc_acc(y: np.ndarray, y_hat: np.ndarray) -> float:
+    round_val = lambda val: 1 if val > 0.5 else 0
+    num_entries = len(y); corr = 0
+    for i in range(len(y)):
+        y_hat_round = round_val(y_hat[i])
+        if y[i] == y_hat_round: corr += 1
+    return corr / num_entries
 \end{lstlisting}
 
 \subsection*{3.4. Weight Initialization }
 Using the inbuilt numpy.random, write a Python function to initialize the weights and biases.
+\begin{lstlisting}[language=Python]
+def train(x: np.ndarray, y: np.ndarray, alpha: float, num_itters: int, log_mode: bool=False):
+    # Initialize weights as a vector of shape (num_features,)
+    num_features = x.shape[1]
+    weight = np.random.uniform(0.0, 1.0, size=num_features)
+    bias = 0.0
+\end{lstlisting}
 
 \subsection*{3.5. Gradient Descent }
 Given the specified loss function, write the equation for the gradient w.r.t. weight w and bias b.  Then write a Python function to perform one step of gradient descent with learning rate a.
-
 \begin{lstlisting}[language=Python]
-def gradient_descent(w, b, alpha, data_x, data_y): 
-    # do forward pass 
-    # compute gradients 
-    # update w and b 
-    return new_w, new_b 
+def gradient_descent(w: np.ndarray, b: float, alpha: float, X: np.ndarray, y: np.ndarray, y_hat: np.ndarray):
+    num_entries = len(y)
+    err = y_hat - y
+    # Calculate average gradients
+    grad_w = (1/num_entries) * np.dot(X.T, err) 
+    grad_b = (1/num_entries) * np.sum(err)
+    # Update
+    new_w = w - (alpha * grad_w)
+    new_b = b - (alpha * grad_b)
+    return new_w, new_b
+
 \end{lstlisting}
 
 \subsection*{3.6. Train the Model }
 Write a Python function for training the model using the template below:
-
 \begin{lstlisting}[language=Python]
-def train (x, y, alpha, num_iterations): 
-    # initialize weights 
-    #training loop 
-    # record training accuracy after every 1000 iterations
-    # record loss after every 1000 iterations 
-    # plot acc vs iterations and loss vs iterations 
-    return final_m, final_b 
+def train(x: np.ndarray, y: np.ndarray, alpha: float, num_itters: int, log_mode: bool=False):
+    # Initialize weights as a vector of shape (num_features,)
+    num_features = x.shape[1]
+    weight = np.random.uniform(0.0, 1.0, size=num_features)
+    bias = 0.0
+    # Training loop ------
+    interval: int  = 1000
+    accu_vals = []
+    loss_vals = []
+    epochs = 0
+    for i in range(num_itters): 
+        y_hat = forward_pass(x, weight, bias)
+        if (i%interval) == 0:
+            # Record training accuracy after every 1000 iterations
+            acc_val: float = calc_acc(y,y_hat)
+            accu_vals.append(acc_val)
+            # Record loss after every 1000 iterations 
+            loss_val = loss(y,y_hat)
+            loss_vals.append(loss_val)
+            print_evals(epochs, acc_val, loss_val)
+            epochs += 1
+        weight, bias = gradient_descent(weight, bias, alpha, x,y,y_hat)
+    # Plot acc vs iterations and loss vs iterations 
+    plot_val(loss_vals, interval, "loss.png", "Loss v. Itter", "Itters", "Loss")
+    plot_val(accu_vals, interval, "acc.png", "Accuracy v. Itters", "Itter", "Accuracy")
+    write_logs(accu_vals, interval, alpha)
+    write_pretty_table("table.md")
+    return weight, bias 
+
 \end{lstlisting}
 
 Train the model with $\alpha=0.1$ and 10000 iterations. The function should print training accuracy after every 1000 iterations.  The function should return a plot of loss vs iterations and accuracy vs iterations. Show this plot in your report.
 
 \subsection*{3.7. Write a test function to evaluate trained model }
 After training is done, you need to evaluate your model.  Use the trained model to predict labels for the test data and calculate accuracy using the accuracy function.  Print this accuracy.
+\begin{lstlisting}[language=Python]
+def test(test_x: np.ndarray, test_y: np.ndarray, weight: NDArray, bias: float):
+    y_hat = forward_pass(test_x, weight, bias)
+    acc_val: float = calc_acc(test_y, y_hat)
+    y_hat = forward_pass(test_x, weight, bias)
+    final_acc = calc_acc(test_y, y_hat)
+    print(f"Training Complete. Fin Accuracy: {final_acc:.2%}")
+\end{lstlisting}
 
 \subsection*{3.8. Hyperparameter Analysis}
 Try 4 different learning rates a and 4 different number of iterations N. Report the test accuracy of the model for all combinations in a table like the one below:
@@ -281,11 +366,11 @@ Try 4 different learning rates a and 4 different number of iterations N. Report 
 	\centering
 	\begin{tabular}{|c|c|c|c|c|}
 		\hline
-		                 & $N_{1}=10000$ & $N_{2}=20000$ & $N_{3}=$ & $N_{4}=$ \\ \hline
-		$\alpha_{1}=0.1$ &               &               &          &          \\ \hline
-		$\alpha_{2}=$    &               &               &          &          \\ \hline
-		$\alpha_{3}=$    &               &               &          &          \\ \hline
-		$\alpha_{4}=$    &               &               &          &          \\ \hline
+		\textbf{$\alpha$} & \textbf{N0(0)} & \textbf{N1(1000)} & \textbf{N2(2000)} & \textbf{N3(3000)} \\ \hline
+		0.1               & 0.59121        & 0.77582           & 0.86813           & 0.87253           \\ \hline
+		0.01              & 0.86154        & 0.87033           & 0.86813           & 0.87253           \\ \hline
+		0.001             & 0.72527        & 0.81319           & 0.82857           & 0.83736           \\ \hline
+		0.0001            & 0.59121        & 0.59121           & 0.59121           & 0.59121           \\ \hline
 	\end{tabular}
 \end{table}
 
@@ -293,12 +378,64 @@ With the best learning rate that you tried, does increasing the number of iterat
 
 \subsection*{3.9. (Extra Credit) Logistic Regression using Multiple Features }
 The Scikit-Learn dataset we used above has several features other than "mean radius".  Train a model that uses more than one features in the input per example (mean radius and some other features).  139] To do so, you may have to rewrite the sigmoid function and gradient rules.  Repeat the process and report your results. Did using more features help improve the accuracy on the test set?
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		\textbf{$\alpha$} & \textbf{N0(0)} & \textbf{N1(1000)} & \textbf{N2(2000)} & \textbf{N3(3000)} \\ \hline
+		0.1               & 0.13407        & 0.98022           & 0.98242           & 0.98242           \\ \hline
+		0.0001            & 0.14286        & 0.15824           & 0.17363           & 0.18681           \\ \hline
+		0.001             & 0.12747        & 0.47473           & 0.92308           & 0.95385           \\ \hline
+		0.001             & 0.13846        & 0.49231           & 0.87473           & 0.91648           \\ \hline
+		0.01              & 0.09231        & 0.96044           & 0.97582           & 0.97802           \\ \hline
+	\end{tabular}
+	\caption{Your table caption here}
+	\label{tab:alpha_results}
+\end{table}
+As there is more information, there is more concepts for the model to train on. However, this also increases the overall complexity when it comes to resolving the underlying function during the training steps. As such there is a noteably sensitity to the Hyperparameters as opposed to the prior.
 
 \section*{4 Image Convolution by Hand   }
 
 Show the method and answer for convolving image $x(m,n)$ with filter $h(m,n)$. Assume zero-padding outside of x.  The equation and visual procedure for 2D convolution is in the slides.
-$$x(m,n)=\left[\begin{matrix}1&10\\ 2&20\\ 3&30\end{matrix}\right] \quad h(m,n)=\left[\begin{matrix}1&0&1\\ -1&0&-1\end{matrix}\right]$$
+\[
+	x(m,n) = X^{3 \times 2}  =
+	\begin{bmatrix}
+		1 & 10 \\
+		2 & 20 \\
+		3 & 30
+	\end{bmatrix} \quad \quad
+	h(m,n)  = H^{2 \times 3} =
+	\begin{bmatrix}
+		1  & 0 & 1  \\
+		-1 & 0 & -1
+	\end{bmatrix}
+\]
 
+% TODO: fix
+\[
+	\begin{gathered}
+		X \ast H =
+		\begin{bmatrix}
+			1 & 10 \\
+			2 & 20 \\
+			3 & 30
+		\end{bmatrix}
+		\begin{bmatrix}
+			1  & 0 & 1  \\
+			-1 & 0 & -1
+		\end{bmatrix} \\
+		= \left[ \begin{array}{ccc}
+				1 \cdot 1 + 10 \cdot (-1), & 1 \cdot 0 + 10 \cdot 0, & 1 \cdot 1 + 10 \cdot (-1) \\
+				2 \cdot 1 + 20 \cdot (-1), & 2 \cdot 0 + 20 \cdot 0, & 2 \cdot 1 + 20 \cdot (-1) \\
+				3 \cdot 1 + 30 \cdot (-1), & 3 \cdot 0 + 30 \cdot 0, & 3 \cdot 1 + 30 \cdot (-1)
+			\end{array} \right]
+		= \begin{bmatrix}
+			-9  & 0 & -9  \\
+			-18 & 0 & -18 \\
+			-27 & 0 & -27
+		\end{bmatrix}
+	\end{gathered}
+\]
 \section*{5 Watch YouTube Videos as Homework :)   }
 
 Watch the 2015 TED Talk delivered by Fei-Fei Li (Professor at Stanford and lead researcher behind the ImageNet dataset), titled "How we teach computers to understand pictures".  Link: \url{https://youtu.be/40riCqvRoMs?feature=shared}.  \\
