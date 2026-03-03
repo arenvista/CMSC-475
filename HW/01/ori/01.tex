@@ -3,7 +3,8 @@
 \usepackage{amsfonts}
 \usepackage{hyperref}
 \usepackage{listings}
-\usepackage{multicol} % Required package
+\usepackage{multicol}
+\usepackage[margin=1in]{geometry} % Ensures enough space for columns
 \usepackage{lipsum}   % Package for dummy text
 \usepackage{amsmath,amsthm,amscd,amssymb,mathrsfs,tikz}
 % \usepackage{verbatim}
@@ -16,7 +17,6 @@
 \usepackage{soul}% for underlines
 \usepackage{xcolor,colortbl} % for cell colors
 \usepackage{changepage,threeparttable} % for wide tables
-\usepackage[left=1.2in, right=1.2in, top=1in, bottom=1in]{geometry} %The above set the parameters adjust the margins. There are many ways to do this, and frankly, what is above is not the best. However, it will work the time being.
 \usepackage{sectsty}
 \usepackage{ wasysym }
 
@@ -155,9 +155,9 @@ What activation is appropriate for this task? Justify your choice. Write the equ
 	\begin{gathered}
 		\forall ~y \in \hat{Y}, y \in [0,1] \implies \forall ~x \in \mathbb{R}, ~\alpha(x) \in \{ 0,1 \} \\
 		\text{Consider: } \beta(x) := \frac{1}{1+e^{-x}} \implies \forall ~x \in \mathbb{R}  \\
-        \implies \forall ~x \in \delta(x) := u(\beta(x)), ~x \in \{ 0,1 \} \\
-        \small{\text{ Apply delta-dirac function centered at $0.5$ with the input $x$ composed via a sigmoid function}} \\
-        \therefore ~\delta(x) \equiv \alpha(x)
+		\implies \forall ~x \in \delta(x) := u(\beta(x)), ~x \in \{ 0,1 \} \\
+		\small{\text{ Apply delta-dirac function centered at $0.5$ with the input $x$ composed via a sigmoid function}} \\
+		\therefore ~\delta(x) \equiv \alpha(x)
 	\end{gathered}
 \]
 
@@ -175,18 +175,19 @@ Write a single equation to express the conditional probability $P(y^{(i)}|x^{(i)
 			y = f_3(a_3)
 		\end{array}
 		\right . \\\\
-		\tiny{(\text{Note: } \theta := w_n)} \implies y_i = \alpha(\theta^T x_i) = \alpha(\theta \cdot x_i) \\
-		\therefore ~P(y_{i}|x_{i},\theta) = \alpha(\theta^T x_i)
 	\end{gathered}
 \]
+\[ P(y_i | x_i, \theta) = (\alpha(\theta^T x_i))^{y_i} (1 - \alpha(\theta^T x_i))^{1 - y_i} \]
 
 \subsection*{1.4. Likelihood Expression }
 We assume each observation of $y^{(i)}$ in the data is independent and identically distributed.  This means we can write down the likelihood of the data as a product of negative conditional probabilities.  Express and simplify this likelihood $J(\theta)$
-% TODO: finish
+\[
+	\forall~ y, y \text{ is independent and identical } \implies \prod_{i=1}^{N} \big[\alpha(\theta^T x_i)\big]^{y_i} \big[1-\alpha(\theta^T x_i)\big]^{1-y_i}
+\]
 \[
 	\begin{gathered}
-		\text{Recall (Sum Sq. Errors): } J(\theta) = \frac{1}{N}\sum_{i=1}^{N} (y_i-\theta^Tx_i)^2 \\
-		\theta^Tx_i \text{ is a dot product yielding the } \hat{y_i}
+		\equiv \log J(\theta) = \sum_{i=1}^{N} \Big[ y_i \log \alpha(\theta^T x_i) + (1-y_i) \log (1 - \alpha(\theta^T x_i)) \Big]\\
+		\small{\text{\textit{Computationally More Efficent}}} \\
 	\end{gathered}
 \]
 
@@ -199,29 +200,32 @@ In stochastic gradient descent, we use only a single $x^{(i)}$ to compute the li
 		\frac {\partial J_i} {\partial\theta_{j}} =
 		\frac {\partial J_i} {\partial \hat{y}_i} \cdot \frac
 		{\partial \hat{y}_i} {\partial (\theta^Tx_i)} \cdot
-		\frac {\partial (\theta^Tx_i)} {\partial \theta_j}
+		\frac {\partial (\theta^Tx_i)} {\partial \theta_j} = \vec{x}(\hat{y}-\vec{y})
 	\end{gathered}
 \]
 
-% \[
-% 	\begin{gathered}
-% 		\nabla J(\theta) := \begin{bmatrix}
-% 			\frac{\mathscr{d}J(\theta)}{d \theta_1} \\[1em]
-% 			\frac{\mathscr{d}J(\theta)}{d \theta_1} \\[1em]
-% 			\vdots                                  \\[1em]
-% 			\frac{\mathscr{d}J(\theta)}{d \theta_M} \\[1em]
-% 		\end{bmatrix} \\
-% 		\text{Recall (Sum Sq. Errors): } J(\theta) = \frac{1}{N}\sum_{i=1}^{N} (y_i-\theta^Tx_i)^2 \\
-% 		\theta^Tx_i \text{ is a dot product yielding the } \hat{y_i} \\
-% 	\end{gathered}
-% \]
-
 \subsection*{1.6. Gradient Interpretation }
-You may have noticed that the gradient computed above has a very simple form.  \\
-(A) Express the gradient equation in simple English.    \\
-(B) Assuming that one has performed a forward pass to obtain a prediction, how many computations (how many multiplications and how many additions/subtractions) would one need to do to obtain the gradient for each weight?
+You may have noticed that the gradient computed above has a very simple form.
 
-\section*{2 Logistic Regression Computations by Hand   }
+\textit{\textbf{Part (A):} Express the gradient equation in simple English.}\vspace{0.1em} \\
+The gradient is the landscape describe by the space of vectors which describe the differences impact of the difference between predicted values and ground truth with respect to the weights and biases associated. The directions of the vectors which describe the space show the directions which will maximize or minimize error, as maximas or minimas, respectively.
+
+\textit{\textbf{Part (B)} Assuming that one has performed a forward pass to obtain a prediction, how many computations (how many multiplications and how many additions/subtractions) would one need to do to obtain the gradient for each weight?}\vspace{1em} \\
+\begin{tabular}{|l|c|}
+	\hline
+	\textbf{Operation}                                                          & \textbf{Number of Computations}                        \\
+	\hline
+	Compute $z = \theta^T x = \sum_{j=1}^{M} \theta_j x_j$                      & $M$ multiplications, $M-1$ additions                   \\
+	\hline
+	Compute $\hat{y} = \alpha(z) = \frac{1}{1+e^{-z}}$                          & 1 exponentiation, 2 additions/subtractions, 1 division \\
+	\hline
+	Compute gradient $\frac{\partial J}{\partial \theta} = (\hat{y}-y) \vec{x}$ & 1 subtraction, $M$ multiplications                     \\
+	\hline
+\end{tabular} \\\\\\\\\\\
+
+\section*{2 Logistic Regression Computations by Hand} 
+\textbf{\textit{{\color{red}{ \begin{center} Refer to code, in attached zip file for adjustments (see "main-ec.py") \end{center} }}}} \vspace{1em}
+
 
 A logistic regression model is given by the equation $\hat{y}=\sigma(\theta^{T}x)$ where is the sigmoid function.  Consider a logistic regression task with inputs $x\in\mathbb{R}^{3}$ and outputs $y\in\{0,1\}$.  The dataset has three datapoints: \{, ([1, 1, -1], 1), ([1, 2, 1], 0)\}.
 \begin{itemize}
@@ -292,18 +296,12 @@ Calculate the partial derivatives for the second training example: $\frac{\parti
 
 \[
 	\begin{gathered}
-		\\ \hat{y_2} - y = 0.952-0 = -0.952
+		\\ \hat{y_2} - y = 0.952-0 = 0.952
 		\\ \hat{y_2} (1-\hat{y_2}) = 0.952(1-0.952) = 0.045
 		\\ \nabla_{\theta}J^{(2)} = (0.952)(0.045)
-		\begin{bmatrix}
-			1 \\
-			1 \\
-			-1
+		\begin{bmatrix} 1 \\ 2 \\ 1
 		\end{bmatrix} = 0.042
-		\begin{bmatrix}
-			1 \\
-			1 \\
-			-1
+		\begin{bmatrix} 1 \\ 2 \\ 1
 		\end{bmatrix} =
 		\begin{bmatrix}
 			0.0430 \\
@@ -327,6 +325,16 @@ We are using stochastic gradient descent (SGD) with a learning rate of 1.0.  Rec
 
 \subsection*{2.4. Inference }
 Given a new test example $x=[1,3,4]$, what output will the model produce?
+
+\[
+    \sigma
+    [1,3,4]
+	\begin{bmatrix}
+		-1.856 \\
+		2.143  \\
+		0.856  \\
+	\end{bmatrix} \approx 1
+\]
 
 \section*{3 Programming Logistic Regression   }
 Now write your own code for logistic regression. In the report, you need to include your code blocks for each task below and results and plots wherever appropriate.  You can refer to the linear regression example notebook we used in class as a starting point (link is available in the slides).  We will use the dataset from Scikit Learn \url{https://scikit-learn.org/stable/datasets/toy_dataset.html#breast-cancer-wisconsin-diagnostic-dataset}.  For this programming assignment, our values will be the "mean radius" feature;  output y will be 0 for malignant and 1 for benign.  We will use the binary cross entropy loss function to train the model.
@@ -526,6 +534,7 @@ Show the method and answer for convolving image $x(m,n)$ with filter $h(m,n)$. A
 \]
 \vspace{1em}
 
+\begin{multicols}{2}
 \[
 	\begin{bmatrix}
 		0 & 0 & 0 \\
@@ -718,6 +727,7 @@ Show the method and answer for convolving image $x(m,n)$ with filter $h(m,n)$. A
 	= -30 = a_{(3,3)}
 \]
 
+\end{multicols}
 \[
 	\begin{bmatrix}
 		1.0  & 10.0  & 1.0  & 10.0  \\
