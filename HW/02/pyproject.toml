@@ -7,6 +7,8 @@ requires-python = ">=3.12"
 dependencies = [
     "matplotlib>=3.10.8",
     "pandas>=3.0.2",
+    "prompt-toolkit>=3.0.52",
+    "seaborn>=0.13.2",
     "torch>=2.11.0",
     "torchvision>=0.26.0",
 ]

@@ -23,7 +23,7 @@ def main_autoecoder():
     test_loader = data_mgr.test_loader
     model = Autoencoder()
     trainer = TrainerAutoencoder(model)
-    trainer.train(epochs=10, train_loader=train_loader, test_loader=test_loader)
+    trainer.train(epochs=50, train_loader=train_loader, test_loader=test_loader)
 
 if __name__ == "__main__":
     main_autoecoder()
