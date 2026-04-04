@@ -126,7 +126,6 @@ class TrainerAutoencoder():
 
     def train_one_epoch(self, epoch, epochs, train_loader, test_loader=None):
         total_batches = len(train_loader)
-        running_loss = 0.0
 
         for i, (data, target) in enumerate(train_loader):
             data = data.to(self.device) 
@@ -144,15 +143,15 @@ class TrainerAutoencoder():
             sys.stdout.write(
                 f"{move_up}Epoch [{epoch+1}/{epochs}] |{bar}| {percent:.1f}% [Itterations => {self.total_itter}]\n"
                     f"Current Loss: {loss_val:.4f} \n"
-                    f"Running Loss: {running_loss:.4f} \n"
-                    f"Average Loss: {(running_loss/self.total_itter):.4f}"
+                    f"Running Loss: {self.running_loss:.4f} \n"
+                    f"Average Loss: {(self.running_loss/self.total_itter):.4f}"
             )
 
             entry = LossEntry(
                 epoch=epoch,
                 itter=self.total_itter,
                 loss_current=loss_val,
-                loss_average=(running_loss/(self.total_itter)),
+                loss_average=(self.running_loss/(self.total_itter)),
                 running_loss=self.running_loss
             )
             LOG_INTERVAL = 200
@@ -163,7 +162,7 @@ class TrainerAutoencoder():
                 torch.save(self.model.state_dict(), self.weights_path)
             sys.stdout.flush()
 
-        avg_loss = running_loss / self.total_itter
+        avg_loss = self.running_loss / self.total_itter
         return avg_loss
 
 
