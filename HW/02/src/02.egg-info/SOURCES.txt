@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+src/02.egg-info/PKG-INFO
+src/02.egg-info/SOURCES.txt
+src/02.egg-info/dependency_links.txt
+src/02.egg-info/requires.txt
+src/02.egg-info/top_level.txt
+src/dcgan/__init__.py
+src/dcgan/augment.py
+src/dcgan/dataloader.py
+src/dcgan/discriminator.py
+src/dcgan/generator.py
+src/dcgan/trainer.py
