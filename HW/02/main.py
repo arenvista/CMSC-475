@@ -3,19 +3,20 @@ from pathlib import Path
 import argparse
 import os
 
-from dcgan.generator import Generator
-from dcgan.discriminator import Discriminator
-from dcgan.dataloader import CustomDataset
-from dcgan.trainer import Trainer
+# from dcgan.generator import Generator
+# from dcgan.discriminator import Discriminator
+# from dcgan.dataloader import CustomDataset
+# from dcgan.trainer import Trainer
 
 from autoencoder.dataloader import CIFAR10DataModule
 from autoencoder.autoencoder import TrainerAutoencoder
 from autoencoder.autoencoder import Autoencoder
 
 
-def main_gan():
-    trainer = Trainer()
-    trainer.training_loop(5)
+# def main_gan():
+#     trainer = Trainer()
+#     trainer.training_loop(5)
+
 def main_autoecoder():
     data_mgr = CIFAR10DataModule()
     train_loader = data_mgr.train_loader

@@ -39,7 +39,7 @@ class CustomDataset(Dataset):
         return image_tensor
 
 # Initialize the dataset
-dataset = CustomDataset(main_dir='imgs/')
+dataset = CustomDataset(main_dir='data/grump/')
 
 # Fetch one item
 sample_tensor: Tensor = dataset[0]

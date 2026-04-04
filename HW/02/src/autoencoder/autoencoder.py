@@ -115,6 +115,7 @@ class TrainerAutoencoder():
         now = datetime.datetime.now()
         safe_time_str = now.strftime("%m-%d %H:%M:%S")
         csv_dir = "data/loss/"
+        os.mkdir(csv_dir)
         self.csv_filename: str = csv_dir + safe_time_str + ".csv" 
         self.img_dir = "data/imgs/" + safe_time_str + "/"
         os.mkdir(self.img_dir)
