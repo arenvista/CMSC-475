@@ -1,4 +1,5 @@
 *.pyc
+*.png
 data/imgs/
 data/loss/
 cifar-10-*

@@ -23,7 +23,7 @@ class Trainer():
         
         # Loss & Data
         self.loss_func = nn.BCELoss() # Standard for GANs
-        self.loader = DataLoader(CustomDataset("imgs/"), batch_size=64, shuffle=True)
+        self.loader = DataLoader(CustomDataset("data/grump"), batch_size=64, shuffle=True)
 
     def sample_noise(self, batch_size):
         return torch.randn(batch_size, self.latent_dim, 1, 1).to(self.device)
