@@ -20,7 +20,6 @@ class DiscriminatorLayerManager(nn.Module):
     def forward(self, z: Tensor) -> Tensor:
         for i in range(len(self.layers_conv) - 1):
             z = self.layers_conv[i](z)
-            # Safely apply normalization if a corresponding norm layer exists
             if i < len(self.layers_norm):
                 z = self.layers_norm[i](z)
             z = F.relu(z)
@@ -43,16 +42,9 @@ class Discriminator(nn.Module):
         self.num_internal_layers = num_internal_layers
         self.num_fcl_layers = num_fcl_layers
 
-        # Keep the internal feature layers
         self.add_internal_layer()
-        
-        # REMOVED: self.add_fcl() 
-        # We don't want to go back to 3 channels (RGB) in the Discriminator.
-
-        # Shrink the feature maps down to 1x1
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         
-        # FIXED: Match the input features (64) and set output to 1 for binary classification
         self.classifier = nn.Linear(dims_conv, 1)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -72,6 +64,5 @@ class Discriminator(nn.Module):
             self.feature_extractor.add_conv(self.dims_conv, self.dims_conv)
             self.feature_extractor.add_norm(self.dims_conv) 
 
-    # We can keep the method, but don't call it in __init__ for the Discriminator
     def add_fcl(self):
         self.feature_extractor.add_conv(self.dims_conv, self.in_channels)

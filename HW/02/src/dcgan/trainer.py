@@ -32,20 +32,15 @@ class Trainer():
         batch_size = real_imgs.size(0)
         self.optim_d.zero_grad()
 
-        # 1. Train on Real
-        # Labels for real are 1.0
         labels_real = torch.ones(batch_size, 1).to(self.device)
         print("finding outputs discrim")
         output_real = self.discriminator.forward(real_imgs)
         print("finding loss")
         loss_real = self.loss_func(output_real, labels_real)
 
-        # 2. Train on Fake
         noise = self.sample_noise(batch_size)
         fake_imgs = self.generator(noise)
-        # Labels for fake are 0.0
         labels_fake = torch.zeros(batch_size, 1).to(self.device)
-        # .detach() is vital: we don't want to update Generator here
         output_fake = self.discriminator(fake_imgs.detach())
         loss_fake = self.loss_func(output_fake, labels_fake)
 
@@ -72,16 +67,11 @@ class Trainer():
 
     def training_loop(self, epochs):
         for epoch in range(epochs):
-            # 1. Correct the unpacking to keep the batch 4D
             for i, real_imgs in enumerate(self.loader):
-                # 2. Move images to device BEFORE training
                 real_imgs = real_imgs.to(self.device)
                 batch_size = real_imgs.size(0)
 
-                # 3. Update Discriminator (Removed the duplicate call)
                 d_loss = self.train_discriminator(real_imgs)
-
-                # 4. Update Generator
                 g_loss = self.train_generator(batch_size)
 
                 if i % 100 == 0:

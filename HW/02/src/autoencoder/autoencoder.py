@@ -5,14 +5,13 @@ import datetime
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-import torch.optim as optim
+# import torch.optim as optim
 
 import sys
-from functools import wraps
-from dataclasses import dataclass, astuple, fields, asdict
+from dataclasses import dataclass, asdict
 import pandas as pd
-from typing import List
 import os
+from pathlib import Path
 
 @dataclass
 class LossEntry:
@@ -108,17 +107,21 @@ class Autoencoder(nn.Module):
 class TrainerAutoencoder():
     def __init__(self, model):
         self.device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = model.to(self.device)
+        self.model: torch.nn.Module = model.to(self.device)
         self.criterion = nn.MSELoss()
         self.optimizer: torch.optim.Adam = torch.optim.Adam(self.model.parameters(), lr=1e-3)
         self.total_itter: int = 0
         now = datetime.datetime.now()
         safe_time_str = now.strftime("%m-%d %H:%M:%S")
         csv_dir = "data/loss/"
-        os.mkdir(csv_dir)
+        csv_dir_path = Path(csv_dir)
+        csv_dir_path.mkdir(parents=True, exist_ok=True)
         self.csv_filename: str = csv_dir + safe_time_str + ".csv" 
         self.img_dir = "data/imgs/" + safe_time_str + "/"
-        os.mkdir(self.img_dir)
+        img_dir_path = Path(self.img_dir)
+        img_dir_path.mkdir(parents=True, exist_ok=True)
+        self.weights_path = "data/" + safe_time_str + ".pth"
+        self.running_loss = 0
 
     def train(self, epochs, train_loader, test_loader=None):
         for epoch in range(epochs):
@@ -130,14 +133,11 @@ class TrainerAutoencoder():
         total_batches = len(train_loader)
         running_loss = 0.0
         
-        # Move the loop inside the decorator if you want it to wrap the epoch
         for i, (data, target) in enumerate(train_loader):
-            # Pass data to the correct device
             data = data.to(self.device) 
             
-            # Execute the single iteration logic
             loss_val = self.train_one_itter(data)
-            running_loss += loss_val
+            self.running_loss += loss_val
             
             # Terminal Animation
             percent = 100 * (i + 1) / total_batches
@@ -158,13 +158,14 @@ class TrainerAutoencoder():
                 itter=self.total_itter,
                 loss_current=loss_val,
                 loss_average=(running_loss/(self.total_itter)),
-                running_loss=running_loss
+                running_loss=self.running_loss
             )
             LOG_INTERVAL = 200
             if self.total_itter%LOG_INTERVAL==0:
                 LossEntry.save_to_csv(entry, self.csv_filename)
                 if test_loader:
                     self.visualize_results(test_loader, True)
+                torch.save(self.model.state_dict(), self.weights_path)
             sys.stdout.flush()
 
         avg_loss = running_loss / self.total_itter
@@ -190,7 +191,6 @@ class TrainerAutoencoder():
             data = data.to(self.device)
             recon = self.model(data)
         
-        # Plotting logic from your image
         fig, ax = plt.subplots(2, 7, figsize=(15, 4))
         for i in range(7):
             # Denormalize for display (assuming -1 to 1 range)
