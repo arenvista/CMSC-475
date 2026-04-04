@@ -1,17 +1,17 @@
 from __future__ import annotations
-import torch
-import matplotlib.pyplot as plt
+
 import datetime
+import os
+import sys
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-# import torch.optim as optim
-
-import sys
-from dataclasses import dataclass, asdict
-import pandas as pd
-import os
-from pathlib import Path
 
 @dataclass
 class LossEntry:
@@ -22,17 +22,12 @@ class LossEntry:
     running_loss: float = 0
     @classmethod
     def save_to_csv(cls, entry: LossEntry, filename: str):
-        """
-        Converts a list of LossEntry objects into a pandas DataFrame 
-        and saves it to a CSV file.
-        """
         data_dicts = [asdict(entry)] 
         df = pd.DataFrame(data_dicts)
         file_exists = os.path.exists(filename)
         df.to_csv(filename, mode="a", header=not file_exists, index=False)
 
 class LayerManager(nn.Module):
-    """Renamed to LayerManager to be used by both Encoder and Decoder"""
     def __init__(self) -> None:
         super(LayerManager, self).__init__()
         self.layers_conv: nn.ModuleList = nn.ModuleList()
@@ -58,12 +53,12 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.stem = nn.Conv2d(in_channels, dims_conv, kernel_size=3, padding=1)
         self.feature_extractor = LayerManager()
-        
+
         # Add internal layers
         for _ in range(num_layers):
             self.feature_extractor.add_conv(dims_conv, dims_conv)
             self.feature_extractor.add_norm(dims_conv)
-            
+
         # Final layer to reach latent space (using a simple convolution for spatial compression)
         self.bottleneck = nn.Conv2d(dims_conv, latent_dim, kernel_size=3, stride=2, padding=1)
 
@@ -79,11 +74,11 @@ class Decoder(nn.Module):
         # Use ConvTranspose to start upsampling from latent space
         self.stem = nn.ConvTranspose2d(latent_dim, dims_conv, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.feature_extractor = LayerManager()
-        
+
         for _ in range(num_layers):
             self.feature_extractor.add_conv(dims_conv, dims_conv)
             self.feature_extractor.add_norm(dims_conv)
-            
+
         self.head = nn.Conv2d(dims_conv, out_channels, kernel_size=3, padding=1)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -132,27 +127,27 @@ class TrainerAutoencoder():
     def train_one_epoch(self, epoch, epochs, train_loader, test_loader=None):
         total_batches = len(train_loader)
         running_loss = 0.0
-        
+
         for i, (data, target) in enumerate(train_loader):
             data = data.to(self.device) 
-            
+
             loss_val = self.train_one_itter(data)
             self.running_loss += loss_val
-            
+
             # Terminal Animation
             percent = 100 * (i + 1) / total_batches
             bar = '█' * int(percent / 5) + '-' * (20 - int(percent / 5))
-            
+
             self.total_itter += 1
             move_up = "\033[3F" if self.total_itter > 1 else "\r" 
-            
+
             sys.stdout.write(
                 f"{move_up}Epoch [{epoch+1}/{epochs}] |{bar}| {percent:.1f}% [Itterations => {self.total_itter}]\n"
-                f"Current Loss: {loss_val:.4f} \n"
-                f"Running Loss: {running_loss:.4f} \n"
-                f"Average Loss: {(running_loss/self.total_itter):.4f}"
+                    f"Current Loss: {loss_val:.4f} \n"
+                    f"Running Loss: {running_loss:.4f} \n"
+                    f"Average Loss: {(running_loss/self.total_itter):.4f}"
             )
-            
+
             entry = LossEntry(
                 epoch=epoch,
                 itter=self.total_itter,
@@ -176,7 +171,7 @@ class TrainerAutoencoder():
         """Processes one batch of data."""
         self.optimizer.zero_grad()
         outputs = self.model(data)
-        
+
         # Reconstruction loss (input vs output)
         loss = self.criterion(outputs, data)
         loss.backward()
@@ -190,16 +185,15 @@ class TrainerAutoencoder():
             data, _ = next(iter(test_loader))
             data = data.to(self.device)
             recon = self.model(data)
-        
+
         fig, ax = plt.subplots(2, 7, figsize=(15, 4))
         for i in range(7):
-            # Denormalize for display (assuming -1 to 1 range)
             orig = (data[i].cpu().permute(1, 2, 0) * 0.5 + 0.5).clamp(0, 1)
             res = (recon[i].cpu().permute(1, 2, 0) * 0.5 + 0.5).clamp(0, 1)
 
             # orig = (data[i].cpu().numpy().transpose(((1,2,0))))
             # res = (recon[i].cpu().numpy().transpose(((1,2,0))))
-            
+
             ax[0, i].imshow(orig)
             ax[1, i].imshow(res)
             ax[0, i].set_title("Original")
