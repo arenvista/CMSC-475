@@ -1,5 +1,8 @@
 from __future__ import annotations
+from kmeans import kmeans
 
+import numpy as np
+import seaborn as sns
 import datetime
 import os
 import sys
@@ -88,16 +91,17 @@ class Decoder(nn.Module):
         return x
 
 class Autoencoder(nn.Module):
-    def __init__(self):
+    def __init__(self, weight_pth=None,):
         super(Autoencoder, self).__init__()
-        self.encoder = Encoder()
         self.decoder = Decoder()
+        self.encoder = Encoder()
+        if weight_pth is not None:
+            self.load_state_dict(torch.load(weight_pth,map_location=torch.device('cpu')),)
 
     def forward(self, x: Tensor) -> Tensor:
         z = self.encoder(x)
         z_hat = self.decoder(z)
         return z_hat
-
 
 class TrainerAutoencoder():
     def __init__(self, model):
@@ -121,7 +125,6 @@ class TrainerAutoencoder():
     def train(self, epochs, train_loader, test_loader=None):
         for epoch in range(epochs):
             self.model.train()
-            # The decorator makes this call run the full loader loop
             self.train_one_epoch(epoch, epochs, train_loader, test_loader)
 
     def train_one_epoch(self, epoch, epochs, train_loader, test_loader=None):
@@ -130,7 +133,7 @@ class TrainerAutoencoder():
         for i, (data, target) in enumerate(train_loader):
             data = data.to(self.device) 
 
-            loss_val = self.train_one_itter(data)
+            loss_val, output = self.train_one_itter(data)
             self.running_loss += loss_val
 
             # Terminal Animation
@@ -169,13 +172,13 @@ class TrainerAutoencoder():
     def train_one_itter(self, data): 
         """Processes one batch of data."""
         self.optimizer.zero_grad()
-        outputs = self.model(data)
+        output = self.model(data)
 
         # Reconstruction loss (input vs output)
-        loss = self.criterion(outputs, data)
+        loss = self.criterion(output, data)
         loss.backward()
         self.optimizer.step()
-        return loss.item()
+        return loss.item(), output
 
     def visualize_results(self, test_loader, save_img=False, display_plt=False):
         if not test_loader: return
@@ -186,12 +189,9 @@ class TrainerAutoencoder():
             recon = self.model(data)
 
         fig, ax = plt.subplots(2, 7, figsize=(15, 4))
-        for i in range(7):
+        for i in range(10):
             orig = (data[i].cpu().permute(1, 2, 0) * 0.5 + 0.5).clamp(0, 1)
             res = (recon[i].cpu().permute(1, 2, 0) * 0.5 + 0.5).clamp(0, 1)
-
-            # orig = (data[i].cpu().numpy().transpose(((1,2,0))))
-            # res = (recon[i].cpu().numpy().transpose(((1,2,0))))
 
             ax[0, i].imshow(orig)
             ax[1, i].imshow(res)

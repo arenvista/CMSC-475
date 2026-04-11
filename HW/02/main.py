@@ -10,9 +10,9 @@ from dcgan.trainer import Trainer
 
 from autoencoder.dataloader import CIFAR10DataModule
 from autoencoder.autoencoder import TrainerAutoencoder
-from autoencoder.autoencoder import Autoencoder
-
+from autoencoder.autoencoder import Autoencoder, calculate_class_distances, plot_latent_distances
 from kmeans import kmeans
+from autoencoder.autoencoder import cluster_and_plot_cifar
 
 
 
@@ -28,8 +28,15 @@ def main_autoecoder():
     trainer = TrainerAutoencoder(model)
     trainer.train(epochs=50, train_loader=train_loader, test_loader=test_loader)
 
-def kmeans_start():
-    kmeans()
+def latent(wght_pth):
+    print("Calling latent")
+    data_mgr = CIFAR10DataModule()
+    test_loader = data_mgr.test_loader
+    model = Autoencoder(wght_pth)
+    distances = calculate_class_distances(model, test_loader)
+    # plot_latent_distances(distances)
+    cluster_and_plot_cifar(test_loader, model)
+
 
 def main():
     # 1. Create the parser
@@ -54,6 +61,11 @@ def main():
         action="store_true", 
         help="Enable kmeans."
     )
+    parser.add_argument(
+        "-l", "--latent", 
+        action="store_true", 
+        help="Enable latent."
+    )
 
 
     # 3. Parse the arguments
@@ -64,6 +76,8 @@ def main():
         main_autoecoder()
     if args.kmean:
         kmeans()
+    if args.latent:
+        latent("data/wght.pth")
 
 if __name__ == "__main__":
     main()

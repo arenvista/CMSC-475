@@ -9,8 +9,7 @@ class CIFAR10DataModule:
         self.transform = transforms.Compose([
             transforms.Resize((32, 32)),
             transforms.ToTensor(),
-            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)), # 3 channels for CIFAR
-            transforms.Normalize((0.5, ), (0.5, )), # Normailize to [-1,1]
+            transforms.Normalize((0.5, ), (0.5, )),
         ])
 
         train_set: datasets.CIFAR10 = datasets.CIFAR10(root="./data", train=True, download=True, transform=self.transform)

@@ -2,14 +2,14 @@ from sklearn.cluster import KMeans
 import numpy as np
 import matplotlib.pyplot as plt
 
-def kmeans():
+def kmeans(X, k):
     X = np.array([
         [1,2], [1, 2.1], [1, 1.9], [1.1, 2],
         [1,4], [1.2, 4], [0.8, 4.3], [1, 3.8], 
         [10, 2], [10, 2.4], [10, 1.6], [11,2.1]
     ])
 
-    NUM_CLUSTERS = 3
+    NUM_CLUSTERS = k
     kmeans_model = KMeans(
         n_clusters=NUM_CLUSTERS, 
         random_state=0
@@ -34,7 +34,7 @@ def kmeans():
         x=centroids[:, 0],
         y=centroids[:, 1],
         c="red",
-        marker="x",
+        marker="o",
         label="Centroids"
     )
 
