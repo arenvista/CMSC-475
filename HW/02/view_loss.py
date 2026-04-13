@@ -145,7 +145,7 @@ def plot_loss(
 
 
 if __name__ == "__main__":
-    target_dir = Path("./data/loss").resolve()
+    target_dir = Path("./data/gan").resolve()
     
     # Ensure target directory exists before scanning
     target_dir.mkdir(parents=True, exist_ok=True) 

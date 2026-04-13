@@ -2,32 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-
-class DiscriminatorLayerManager(nn.Module): 
-    def __init__(self) -> None:
-        super(DiscriminatorLayerManager, self).__init__()
-        self.layers_conv: nn.ModuleList = nn.ModuleList() 
-        self.layers_norm: nn.ModuleList = nn.ModuleList() 
-
-    def add_conv(self, in_ch: int, out_ch: int, kernel_size: int = 3) -> None:
-        layer_conv = nn.Conv2d(in_ch, out_ch, kernel_size, padding=kernel_size // 2)
-        self.layers_conv.append(layer_conv)
-
-    def add_norm(self, num_features: int) -> None:
-        layer_norm = nn.BatchNorm2d(num_features) 
-        self.layers_norm.append(layer_norm)
-
-    def forward(self, z: Tensor) -> Tensor:
-        for i in range(len(self.layers_conv) - 1):
-            z = self.layers_conv[i](z)
-            if i < len(self.layers_norm):
-                z = self.layers_norm[i](z)
-            z = F.relu(z)
-        
-        if len(self.layers_conv) > 0:
-            z = self.layers_conv[-1](z)
-        
-        return z
+from dcgan.layermgr import *
 
 class Discriminator(nn.Module):
     def __init__(self, in_channels: int = 3, dims_conv: int = 64, num_internal_layers: int = 4, num_fcl_layers: int = 1) -> None:
@@ -35,7 +10,7 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         
         self.stem: nn.Conv2d = nn.Conv2d(in_channels, dims_conv, kernel_size=3, padding=1)
-        self.feature_extractor: DiscriminatorLayerManager = DiscriminatorLayerManager()
+        self.feature_extractor: LayerMgr = LayerMgr(ModelType.DISCRIMINATOR)
         
         self.dims_conv = dims_conv 
         self.in_channels = in_channels
@@ -43,26 +18,58 @@ class Discriminator(nn.Module):
         self.num_fcl_layers = num_fcl_layers
 
         self.add_internal_layer()
-        self.pool = nn.AdaptiveAvgPool2d((1, 1))
         
         self.classifier = nn.Linear(dims_conv, 1)
 
     def forward(self, x: Tensor) -> Tensor:
         x = F.relu(self.stem(x))
         x = self.feature_extractor(x)  # Now shape is [batch_size, 64, 224, 224]
-        
-        x = self.pool(x)               # Shape becomes [batch_size, 64, 1, 1]
-        x = torch.flatten(x, 1)        # Shape becomes [batch_size, 64]
-        
+        x = torch.flatten(x,1)
         x = self.classifier(x)         # Shape becomes [batch_size, 1]
         x = torch.sigmoid(x)           
         
         return x
 
     def add_internal_layer(self):
-        for _ in range(self.num_internal_layers):
-            self.feature_extractor.add_conv(self.dims_conv, self.dims_conv)
-            self.feature_extractor.add_norm(self.dims_conv) 
+        # 32x32 => 16x16
+        self.feature_extractor.add_conv(
+            in_ch       = self.dims_conv,
+            out_ch      = self.dims_conv,
+            kernel_size = 4,
+            stride      = 2,
+            padding     = 1
+        )
+        self.feature_extractor.add_norm(self.dims_conv) 
+
+        # 16x16 => 8x8
+        self.feature_extractor.add_conv(
+            in_ch       = self.dims_conv,
+            out_ch      = self.dims_conv,
+            kernel_size = 4,
+            stride      = 2,
+            padding     = 1
+        )
+        self.feature_extractor.add_norm(self.dims_conv) 
+
+        # 8x8 => 4x4
+        self.feature_extractor.add_conv(
+            in_ch       = self.dims_conv,
+            out_ch      = self.dims_conv,
+            kernel_size = 4,
+            stride      = 2,
+            padding     = 1
+        )
+        self.feature_extractor.add_norm(self.dims_conv) 
+
+        # 4x4 => 1x1
+        self.feature_extractor.add_conv(
+            in_ch       = self.dims_conv,
+            out_ch      = self.dims_conv,
+            kernel_size = 4,
+            stride      = 2,
+            padding     = 0
+        )
+        self.feature_extractor.add_norm(self.dims_conv) 
 
     def add_fcl(self):
         self.feature_extractor.add_conv(self.dims_conv, self.in_channels)

@@ -35,9 +35,7 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx: int) -> Tensor:
         img_path = self.total_imgs[idx]
         image = Image.open(img_path).convert("RGB")
-
         image_tensor: Tensor = self.transform(image)
-
         return image_tensor
 
 
