@@ -9,7 +9,6 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import random
-# Assuming these are your local files
 from dcgan.generator import Generator
 from dcgan.discriminator import Discriminator
 from dcgan.dataloader import CustomDataset
@@ -47,7 +46,7 @@ class Trainer():
         self.optim_d = optim.Adam(self.discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
         
         # Loss & Data
-        self.loss_func = nn.BCELoss() # Standard for GANs
+        self.loss_func = nn.BCELoss()
         augmentor = Augmentor(64)
         transform = None
         if augment_mode != "delux": transform = augmentor.simple_transform()
@@ -117,7 +116,6 @@ class Trainer():
                 running_loss_d += d_loss
                 running_loss_g += g_loss
                 
-                # 3. Log and Save
                 if i % 100 == 0:
                     # print(f"Epoch [{epoch}/{epochs}] Batch {i} | D Loss: {d_loss:.4f} G Loss: {g_loss:.4f}")
                     entry = LossEntry(

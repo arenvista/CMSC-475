@@ -41,7 +41,7 @@ def main_autoecoder():
     trainer = TrainerAutoencoder(model)
     trainer.train(epochs=50, train_loader=train_loader, test_loader=test_loader)
 
-# testing
+# testing; update this later
 def latent(wght_pth):
     print("Calling latent")
     data_mgr = CIFAR10DataModule()
@@ -49,7 +49,6 @@ def latent(wght_pth):
     model = Autoencoder(wght_pth)
 
 def main():
-    # 1. Create the parser
     parser = argparse.ArgumentParser(
         prog="FileProcessor",
         description="A simple script to process text files.",
@@ -82,7 +81,6 @@ def main():
     )
 
 
-    # 3. Parse the arguments
     args = parser.parse_args()
     opts = args.opts
     if args.gan:

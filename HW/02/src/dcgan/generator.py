@@ -21,47 +21,24 @@ class Generator(nn.Module):
 
     def add_internal_layer(self):
         # 1x1 => 4x4
-        self.feature_extractor.add_conv(
-            in_ch       = self.latent_dim,
-            out_ch      = self.dims_conv,
-            kernel_size = 4,
-            stride      = 1,
-            padding     = 0
-        )
-        self.feature_extractor.add_norm(self.dims_conv) 
+        self.feature_extractor.add_conv(self.latent_dim, self.dims_conv * 8, 4, 1, 0)
+        self.feature_extractor.add_norm(self.dims_conv * 8) 
 
         # 4x4 => 8x8
-        self.feature_extractor.add_conv(
-            in_ch       = self.dims_conv,
-            out_ch      = self.dims_conv,
-            kernel_size = 4,
-            stride      = 2,
-            padding     = 1
-        )
-        self.feature_extractor.add_norm(self.dims_conv) 
+        self.feature_extractor.add_conv(self.dims_conv * 8, self.dims_conv * 4, 4, 2, 1)
+        self.feature_extractor.add_norm(self.dims_conv * 4) 
 
         # 8x8 => 16x16
-        self.feature_extractor.add_conv(
-            in_ch       = self.dims_conv,
-            out_ch      = self.dims_conv,
-            kernel_size = 4,
-            stride      = 2,
-            padding     = 1
-        )
-        self.feature_extractor.add_norm(self.dims_conv) 
+        self.feature_extractor.add_conv(self.dims_conv * 4, self.dims_conv * 2, 4, 2, 1)
+        self.feature_extractor.add_norm(self.dims_conv * 2) 
 
         # 16x16 => 32x32
-        self.feature_extractor.add_conv(
-            in_ch       = self.dims_conv,
-            out_ch      = self.dims_conv,
-            kernel_size = 4,
-            stride      = 2,
-            padding     = 1
-        )
+        self.feature_extractor.add_conv(self.dims_conv * 2, self.dims_conv, 4, 2, 1)
         self.feature_extractor.add_norm(self.dims_conv) 
 
     def add_fcl(self):
-        self.feature_extractor.add_conv(self.dims_conv, self.out_channels)
+        # 32x32 => 64x64
+        self.feature_extractor.add_conv(self.dims_conv, self.out_channels, 4, 2, 1)
 
     def forward(self, x: Tensor) -> Tensor:
         if x.dim() == 2: x = x.view(-1, self.latent_dim,1,1)

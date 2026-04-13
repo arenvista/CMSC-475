@@ -14,7 +14,7 @@ class CustomDataset(Dataset):
     print("Loading Data")
     default_transform: Callable[[Any], Tensor] = transforms.Compose(
         [
-            transforms.Resize((224, 224)),
+            transforms.Resize((64,64)),
             transforms.ToTensor(),
         ]
     )

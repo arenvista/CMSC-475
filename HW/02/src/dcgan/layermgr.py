@@ -28,7 +28,7 @@ class LayerMgr(nn.Module):
         self.layers_norm.append(layer_norm)
 
     def forward(self, z: Tensor) -> Tensor:
-        for i in range(len(self.layers_conv) - 1):
+        for i in range(len(self.layers_conv)- 1):
             z = self.layers_conv[i](z)
             
             if i < len(self.layers_norm):

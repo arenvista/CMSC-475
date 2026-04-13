@@ -13,9 +13,7 @@ class TransformMode(Enum):
 def get_transform(func: Callable[..., List[Any]]) -> Callable[..., transforms.Compose]:
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> transforms.Compose:
-        # func returns the list of transform operations
         transform_list = func(self, *args, **kwargs)
-        # return the list wrapped in Compose
         return transforms.Compose(transform_list)
     return wrapper
 
@@ -39,11 +37,11 @@ class Augmentor:
     def delux_transform(self) -> List[Any]:
         transform_opts = [
             transforms.Resize(self.image_size, Image.BICUBIC),
+            transforms.GaussianBlur(3, 1),
             transforms.ToTensor(),
             transforms.Normalize(
                 (0.5, 0.5, 0.5),
                 (0.5, 0.5, 0.5),
             ),
-            transforms.GaussianBlur(3, 1),
         ]
         return transform_opts
