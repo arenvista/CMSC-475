@@ -1,0 +1,12 @@
+/* Center tables in Reading View */
+.markdown-rendered table {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Center tables in Live Preview (Obsidian v1.5+) */
+.cm-embed-block.cm-table-widget {
+    display: flex;
+    justify-content: center;
+}
+
